@@ -24,7 +24,7 @@ void CNC(vector<byte *> &uData, vector<int> &uLens, vector<byte *> &uKeys, vecto
         
         KeyExpansion(uKeys[i], expandedKey);
         
-        omp_set_num_threads(4);
+        omp_set_num_threads(16);
         #pragma omp parallel for 
         for(int curr_index = 0 ; curr_index<uLens[i] ; curr_index+=16){
 
@@ -89,6 +89,7 @@ int main() {
     data_dump.open(vars.datadump, fstream::app);
 
     int i, j;
+    auto total_start = chrono::high_resolution_clock::now();
     for(i = vars.n_files_start; i <= vars.n_files_end; i += vars.step) {
         for(j = 0; j < vars.m_batches; j++) {
 
@@ -125,6 +126,9 @@ int main() {
         }
         cout << endl;
     }
+    auto total_end = chrono::high_resolution_clock::now();
+    auto total_time = chrono::duration_cast<chrono::milliseconds>(total_end - total_start);
+    printf("\n\n TOTAL TIME: %10ld ms\n", total_time.count());
     return 0;
 }
 

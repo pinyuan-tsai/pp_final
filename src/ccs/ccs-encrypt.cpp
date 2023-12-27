@@ -51,7 +51,7 @@ void CCS(vector<byte *> &slicedData, vector<int> &uLens, vector<byte *> &uKeys, 
 
     //the total number of cores I have is 4
     //hence the parallelism is split as 2*2 giving a total of 4 threads 
-    omp_set_num_threads(4);
+    omp_set_num_threads(16);
     #pragma omp parallel for
     for(int i = 0; i < slicedData.size(); i++) {
 
@@ -124,6 +124,7 @@ int main() {
     ofstream data_dump;
     data_dump.open(vars.datadump, fstream::app);
     int i, j;
+    auto total_start = chrono::high_resolution_clock::now();
     for(i = vars.n_files_start; i <= vars.n_files_end; i += vars.step) {
         for(j = 0; j < vars.m_batches; j++) {
 
@@ -172,6 +173,9 @@ int main() {
         }
         cout << endl;
     }
+    auto total_end = chrono::high_resolution_clock::now();
+    auto total_time = chrono::duration_cast<chrono::milliseconds>(total_end - total_start);
+    printf("\n\n TOTAL TIME: %10ld ms\n", total_time.count());
     return 0;
 }
 

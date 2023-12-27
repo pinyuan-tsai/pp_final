@@ -128,6 +128,7 @@ int main() {
     data_dump.open(vars.datadump, fstream::app);
     
     int i, j;
+    long int total = 0;
     for(i = vars.n_files_start; i <= vars.n_files_end; i += vars.step) {
         for(j = 0; j < vars.m_batches; j++) {
             vector<byte*> uData;
@@ -155,11 +156,15 @@ int main() {
             }
 
             auto _time = chrono::duration_cast<chrono::milliseconds>(end - start);
+            total += _time.count();
         	printf("\n N_FILES: %5d | BATCH: %2d | TIME: %10ld ms", i, j, _time.count());
             data_dump << vars.path << ",GNC," << i << "," << j << "," << _time.count() << "," << len << endl;
         }
 	}
-
+    //auto end = chrono::high_resolution_clock::now();
+    //auto _time = chrono::duration_cast<chrono::milliseconds>(end - start);
+    //printf("\n\n TOTAL TIME: %10ld ms\n", _time.count());
+    printf("\n\n TOTAL TIME: %10ld ms\n", total);
     return 0;
 }
 

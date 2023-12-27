@@ -23,7 +23,7 @@ void CCNS(vector<byte *> &uData, vector<int> &uLens, vector<byte *> &uKeys, vect
 
     //the total number of cores I have is 4
     //hence the parallelism is split as 2*2 giving a total of threads 
-    omp_set_num_threads(4);
+    omp_set_num_threads(16);
     #pragma omp parallel for
     for(int i = 0; i < uData.size(); i++) {
 
@@ -100,6 +100,7 @@ int main() {
 
     int i, j;
     long long len;
+    auto total_start = chrono::high_resolution_clock::now();
     for(i = vars.n_files_start; i <= vars.n_files_end; i += vars.step) {
         
         // double isum = 0;
@@ -149,6 +150,9 @@ int main() {
         }
         cout << endl;
 	}
+    auto total_end = chrono::high_resolution_clock::now();
+    auto total_time = chrono::duration_cast<chrono::milliseconds>(total_end - total_start);
+    printf("\n\n TOTAL TIME: %10ld ms\n", total_time.count());
 
     return 0;
 }
