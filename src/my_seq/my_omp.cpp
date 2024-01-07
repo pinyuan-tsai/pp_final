@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <omp.h>
 #include <chrono>
+#include <immintrin.h>
 
 #include "../include/aeslib.hpp"
 #include "../include/genlib.hpp"
@@ -33,9 +34,17 @@ void f1printBytes(byte b[], int len, FILE* fp) {
 }
 
 void AddRoundKey(byte *state, byte *RoundKey) {
-    for(int i = 0; i < 16; i++) {
-        state[i] ^= RoundKey[i];
-    }
+    // for(int i = 0; i < 16; i++) {
+    //     state[i] ^= RoundKey[i];
+    // }
+
+	__m128i xmm_state, xmm_roundkey;
+    xmm_state = _mm_loadu_si128((__m128i*)state); // 載入state到xmm_state
+    xmm_roundkey = _mm_loadu_si128((__m128i*)RoundKey); // 載入RoundKey到xmm_roundkey
+
+    xmm_state = _mm_xor_si128(xmm_state, xmm_roundkey); // 使用SSE的XOR操作
+
+    _mm_storeu_si128((__m128i*)state, xmm_state); // 將結果寫回state
 }
 
 void SubBytes(byte *state) {
