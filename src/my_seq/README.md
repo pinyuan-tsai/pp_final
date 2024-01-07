@@ -18,7 +18,7 @@ e.g., `./omp in.txt key.txt omp_out.txt`
 
 ### CUDA version  
 1. compile:  
-`nvcc cuda.cu -o cuad`  
+`nvcc cuda.cu -o cuda`  
 2. run:  
 `./cuda {input_path} {key_path} {output_path}`  
 e.g., `./cuda in.txt key.txt cuda_out.txt` 
