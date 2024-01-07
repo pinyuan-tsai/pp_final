@@ -77,31 +77,60 @@ void ShiftRows(byte *state) {
 }
 
 void MixColumns(byte *state) {
-	byte tmp[16];
+	byte temp1[16] = {mul2[state[0]], state[0], state[0], mul3[state[0]],
+					  mul2[state[4]], state[4], state[4], mul3[state[4]],
+					  mul2[state[8]], state[8], state[8], mul3[state[8]],
+					  mul2[state[12]], state[12], state[12], mul3[state[12]]};
+	byte temp2[16] = {mul3[state[1]], mul2[state[1]], state[1], state[1],
+					  mul3[state[5]], mul2[state[5]], state[5], state[5],
+					  mul3[state[9]], mul2[state[9]], state[9], state[9],
+					  mul3[state[13]], mul2[state[13]], state[13], state[13]};
+	byte temp3[16] = {state[2], mul3[state[2]], mul2[state[2]], state[2],
+					  state[6], mul3[state[6]], mul2[state[6]], state[6],
+					  state[10], mul3[state[10]], mul2[state[10]], state[10],
+					  state[14], mul3[state[14]], mul2[state[14]], state[14]};
+	byte temp4[16] = {state[3], state[3], mul3[state[3]], mul2[state[3]],
+					  state[7], state[7], mul3[state[7]], mul2[state[7]],
+					  state[11], state[11], mul3[state[11]], mul2[state[11]],
+					  state[15], state[15], mul3[state[15]], mul2[state[15]]};
 
-	tmp[0]  = (byte) mul2[state[0]] ^ mul3[state[1]] ^ state[2] ^ state[3];
-	tmp[1]  = (byte) state[0] ^ mul2[state[1]] ^ mul3[state[2]] ^ state[3];
-	tmp[2]  = (byte) state[0] ^ state[1] ^ mul2[state[2]] ^ mul3[state[3]];
-	tmp[3]  = (byte) mul3[state[0]] ^ state[1] ^ state[2] ^ mul2[state[3]];
+	__m128i xmm_temp1, xmm_temp2, xmm_temp3, xmm_temp4;
+    xmm_temp1 = _mm_loadu_si128((__m128i*)temp1);
+    xmm_temp2 = _mm_loadu_si128((__m128i*)temp2);
+	xmm_temp3 = _mm_loadu_si128((__m128i*)temp3);
+	xmm_temp4 = _mm_loadu_si128((__m128i*)temp4);
 
-	tmp[4]  = (byte) mul2[state[4]] ^ mul3[state[5]] ^ state[6] ^ state[7];
-	tmp[5]  = (byte) state[4] ^ mul2[state[5]] ^ mul3[state[6]] ^ state[7];
-	tmp[6]  = (byte) state[4] ^ state[5] ^ mul2[state[6]] ^ mul3[state[7]];
-	tmp[7]  = (byte) mul3[state[4]] ^ state[5] ^ state[6] ^ mul2[state[7]];
+    xmm_temp1 = _mm_xor_si128(xmm_temp1, xmm_temp2);
+	xmm_temp1 = _mm_xor_si128(xmm_temp1, xmm_temp3);
+	xmm_temp1 = _mm_xor_si128(xmm_temp1, xmm_temp4);
 
-	tmp[8]  = (byte) mul2[state[8]] ^ mul3[state[9]] ^ state[10] ^ state[11];
-	tmp[9]  = (byte) state[8] ^ mul2[state[9]] ^ mul3[state[10]] ^ state[11];
-	tmp[10] = (byte) state[8] ^ state[9] ^ mul2[state[10]] ^ mul3[state[11]];
-	tmp[11] = (byte) mul3[state[8]] ^ state[9] ^ state[10] ^ mul2[state[11]];
+    _mm_storeu_si128((__m128i*)state, xmm_temp1);
 
-	tmp[12] = (byte) mul2[state[12]] ^ mul3[state[13]] ^ state[14] ^ state[15];
-	tmp[13] = (byte) state[12] ^ mul2[state[13]] ^ mul3[state[14]] ^ state[15];
-	tmp[14] = (byte) state[12] ^ state[13] ^ mul2[state[14]] ^ mul3[state[15]];
-	tmp[15] = (byte) mul3[state[12]] ^ state[13] ^ state[14] ^ mul2[state[15]];
+	// byte tmp[16];
 
-	for (int i = 0; i < 16; i++) {
-		state[i] = tmp[i];
-	}
+	// tmp[0]  = (byte) mul2[state[0]] ^ mul3[state[1]] ^ state[2] ^ state[3];
+	// tmp[1]  = (byte) state[0] ^ mul2[state[1]] ^ mul3[state[2]] ^ state[3];
+	// tmp[2]  = (byte) state[0] ^ state[1] ^ mul2[state[2]] ^ mul3[state[3]];
+	// tmp[3]  = (byte) mul3[state[0]] ^ state[1] ^ state[2] ^ mul2[state[3]];
+
+	// tmp[4]  = (byte) mul2[state[4]] ^ mul3[state[5]] ^ state[6] ^ state[7];
+	// tmp[5]  = (byte) state[4] ^ mul2[state[5]] ^ mul3[state[6]] ^ state[7];
+	// tmp[6]  = (byte) state[4] ^ state[5] ^ mul2[state[6]] ^ mul3[state[7]];
+	// tmp[7]  = (byte) mul3[state[4]] ^ state[5] ^ state[6] ^ mul2[state[7]];
+
+	// tmp[8]  = (byte) mul2[state[8]] ^ mul3[state[9]] ^ state[10] ^ state[11];
+	// tmp[9]  = (byte) state[8] ^ mul2[state[9]] ^ mul3[state[10]] ^ state[11];
+	// tmp[10] = (byte) state[8] ^ state[9] ^ mul2[state[10]] ^ mul3[state[11]];
+	// tmp[11] = (byte) mul3[state[8]] ^ state[9] ^ state[10] ^ mul2[state[11]];
+
+	// tmp[12] = (byte) mul2[state[12]] ^ mul3[state[13]] ^ state[14] ^ state[15];
+	// tmp[13] = (byte) state[12] ^ mul2[state[13]] ^ mul3[state[14]] ^ state[15];
+	// tmp[14] = (byte) state[12] ^ state[13] ^ mul2[state[14]] ^ mul3[state[15]];
+	// tmp[15] = (byte) mul3[state[12]] ^ state[13] ^ state[14] ^ mul2[state[15]];
+
+	// for (int i = 0; i < 16; i++) {
+	// 	state[i] = tmp[i];
+	// }
 }
 
 void Round(byte *state, byte *RoundKey, bool isFinal=false) {
