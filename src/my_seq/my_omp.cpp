@@ -141,15 +141,20 @@ void Round(byte *state, byte *RoundKey, bool isFinal=false) {
 }
 
 void Cipher(byte *message, int msg_length, byte expandedKey[176], byte *cipher) {
-	for(int i = 0; i < msg_length; i++) {
-		cipher[i] = message[i];
-	}
 	omp_set_num_threads(8);
-	#pragma omp parallel for
-	for(int i = 0; i < msg_length; i+=16) {
-		AddRoundKey(cipher + i, expandedKey);
-		for(int n = 1; n <= N_ROUNDS; n++) {
-			Round(cipher + i, expandedKey + (n)*16, n == 10);
+	#pragma omp parallel 
+	{
+		#pragma omp for
+		for(int i = 0; i < msg_length; i++) {
+			cipher[i] = message[i];
+		}
+
+		#pragma omp for
+		for(int i = 0; i < msg_length; i+=16) {
+			AddRoundKey(cipher + i, expandedKey);
+			for(int n = 1; n <= N_ROUNDS; n++) {
+				Round(cipher + i, expandedKey + (n)*16, n == 10);
+			}
 		}
 	}
 }
